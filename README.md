@@ -37,13 +37,6 @@ Protect the castle by defeating each wave before the enemies destroy it. Collect
 | Attack | **F** |
 | Block | **E** |
 
-## Development Team
-
-- **Mohammad Al-Dwairi** — Team Lead
-- **Roupen Dabbaghian** — Technical Lead
-- **Hakeem Harris**
-- **Samuel Havlik**
-
 ## Technology
 
 - Godot 4.5
