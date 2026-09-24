@@ -1,0 +1,103 @@
+name: Deploy Siege Control to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download game source
+        run: |
+          curl -L --fail --retry 3 -o source.zip "https://raw.githubusercontent.com/AbuMaria24/CPS298_2D.gameTeam/main/siege_control_Final_Art_touches.zip"
+          unzip -q source.zip
+          echo "PROJECT_DIR=$GITHUB_WORKSPACE/siege-control-pause-and-victory-screen" >> "$GITHUB_ENV"
+
+      - name: Install Godot 4.5 and Web templates
+        run: |
+          curl -L --fail --retry 3 -o godot.zip "https://github.com/godotengine/godot/releases/download/4.5-stable/Godot_v4.5-stable_linux.x86_64.zip"
+          unzip -q godot.zip -d godot
+          chmod +x godot/Godot_v4.5-stable_linux.x86_64
+
+          curl -L --fail --retry 3 -o templates.tpz "https://github.com/godotengine/godot/releases/download/4.5-stable/Godot_v4.5-stable_export_templates.tpz"
+          unzip -q templates.tpz -d templates-unpacked
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.5.stable"
+          cp templates-unpacked/templates/web* "$HOME/.local/share/godot/export_templates/4.5.stable/"
+
+      - name: Configure Web export
+        run: |
+          mkdir -p "$PROJECT_DIR/web"
+          cat >> "$PROJECT_DIR/export_presets.cfg" <<'PRESET'
+
+          [preset.1]
+
+          name="Web"
+          platform="Web"
+          runnable=true
+          advanced_options=false
+          dedicated_server=false
+          custom_features=""
+          export_filter="all_resources"
+          include_filter=""
+          exclude_filter=""
+          export_path="web/index.html"
+          patches=PackedStringArray()
+          encryption_include_filters=""
+          encryption_exclude_filters=""
+          seed=0
+          encrypt_pck=false
+          encrypt_directory=false
+          script_export_mode=2
+
+          [preset.1.options]
+
+          custom_template/debug=""
+          custom_template/release=""
+          variant/extensions_support=false
+          variant/thread_support=false
+          vram_texture_compression/for_desktop=true
+          vram_texture_compression/for_mobile=false
+          html/export_icon=true
+          html/custom_html_shell=""
+          html/head_include=""
+          html/canvas_resize_policy=2
+          html/focus_canvas_on_start=true
+          html/experimental_virtual_keyboard=false
+          progressive_web_app/enabled=false
+          PRESET
+
+      - name: Import project assets
+        run: |
+          godot/Godot_v4.5-stable_linux.x86_64 --headless --editor --path "$PROJECT_DIR" --quit-after 30
+
+      - name: Export browser game
+        run: |
+          godot/Godot_v4.5-stable_linux.x86_64 --headless --path "$PROJECT_DIR" --export-release Web "$PROJECT_DIR/web/index.html"
+          touch "$PROJECT_DIR/web/.nojekyll"
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.PROJECT_DIR }}/web
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
