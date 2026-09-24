@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="siege-control-banner.png" alt="Siege Control game banner" width="100%">
+</p>
+
 # 🏰 Siege Control
 
 ## [🎮 Play Siege Control in Your Browser](https://abumaria24.github.io/Siege-Control-Play/)
