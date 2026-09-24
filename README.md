@@ -6,6 +6,8 @@
 
 ## [🎮 Play Siege Control in Your Browser](https://abumaria24.github.io/Siege-Control-Play/)
 
+## [⬇️ Download the Complete Game ZIP](https://github.com/AbuMaria24/Siege-Control-Play/releases/tag/v1.0.0)
+
 **Siege Control** is a 2D action-defense game created with Godot 4. You play as a knight defending a castle from waves of enemies. Fight monsters, collect coins, purchase upgrades, and keep the castle standing until the final battle.
 
 No download is required—open the link above and play directly in a modern desktop browser.
